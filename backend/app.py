@@ -5,7 +5,7 @@ import os
 import random
 import smtplib
 from email.mime.text import MIMEText
-
+import psycopg2
 app = Flask(__name__)
 CORS(app)
 
@@ -13,8 +13,13 @@ CORS(app)
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 def get_db_connection():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    import psycopg2
+    import os
+
+    return psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        sslmode='require'
+    )
 
 # ---------------- OTP STORAGE ----------------
 otp_storage = {}
@@ -68,33 +73,35 @@ def verify_otp():
 # ---------------- REGISTER ----------------
 @app.route('/register', methods=['POST'])
 def register():
-    data = request.json
+    try:
+        data = request.json
 
-    name = data['name']
-    email = data['email']
-    password = data['password']
-    role = data['role']
+        name = data['name']
+        email = data['email']
+        password = data['password']
+        role = data['role']
 
-    conn = get_db_connection()
-    cur = conn.cursor()
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    # CHECK EXISTING EMAIL
-    cur.execute("SELECT * FROM users WHERE email=%s", (email,))
-    if cur.fetchone():
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        if cur.fetchone():
+            return jsonify({"message": "Email already exists ❌"})
+
+        cur.execute(
+            "INSERT INTO users(name,email,password,role) VALUES(%s,%s,%s,%s)",
+            (name, email, password, role)
+        )
+        conn.commit()
+
         cur.close()
         conn.close()
-        return jsonify({"message": "Email already exists ❌"})
 
-    # INSERT USER
-    cur.execute(
-        "INSERT INTO users(name,email,password,role) VALUES(%s,%s,%s,%s)",
-        (name, email, password, role)
-    )
-    conn.commit()
-    cur.close()
-    conn.close()
+        return jsonify({"message": "User registered successfully ✅"})
 
-    return jsonify({"message": "User registered successfully ✅"})
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"message": "Server error", "error": str(e)})
 
 # ---------------- LOGIN ----------------
 @app.route('/login', methods=['POST'])
