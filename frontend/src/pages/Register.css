@@ -3,32 +3,81 @@ body {
   font-family: Arial;
 }
 
-.container {
-  width: 320px;
-  margin: 100px auto;
-  padding: 30px;
-  box-shadow: 0 0 15px #ccc;
-  border-radius: 10px;
-  background: white;
+/* MAIN BOX */
+.auth-box {
+  width: 700px;
+  margin: 80px auto;
+  display: flex;
+  box-shadow: 0 0 20px #ddd;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* LEFT PANEL */
+.left-panel {
+  width: 50%;
+  background: linear-gradient(135deg, #28a745, #218838);
+  color: white;
+  padding: 40px;
   text-align: center;
 }
 
+.left-panel button {
+  margin-top: 20px;
+  padding: 10px;
+  background: white;
+  color: #28a745;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  width: 50%;
+  padding: 40px;
+  background: white;
+}
+
+/* INPUT + SELECT */
 input,
 select {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin: 10px 0;
-  border-radius: 5px;
+  border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 14px;
 }
 
+/* 🔥 ROLE DROPDOWN SPECIAL */
+select[name="role"] {
+  border: 2px solid #28a745;
+  background-color: #f0fff4;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+}
+
+/* HOVER */
+select[name="role"]:hover {
+  border-color: #218838;
+}
+
+/* FOCUS */
+select[name="role"]:focus {
+  outline: none;
+  box-shadow: 0 0 6px #28a745;
+}
+
+/* BUTTON */
 button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background: #28a745;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -36,7 +85,14 @@ button:hover {
   background: #218838;
 }
 
-.message {
+/* ERROR */
+.error {
+  color: red;
+  font-size: 12px;
+}
+
+/* SUCCESS */
+.success {
   color: green;
   font-weight: bold;
 }

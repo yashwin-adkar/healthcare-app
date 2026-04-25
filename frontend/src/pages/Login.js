@@ -22,10 +22,8 @@ function Login() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  // ✅ VALIDATION
   const validate = () => {
     let err = {};
-
     if (!data.email) err.email = "Email required";
     if (!data.password) err.password = "Password required";
 
@@ -33,7 +31,6 @@ function Login() {
     return Object.keys(err).length === 0;
   };
 
-  // 🔐 SEND OTP
   const sendOtp = async () => {
     if (!validate()) return;
 
@@ -43,23 +40,28 @@ function Login() {
       const res = await axios.post(`${BASE_URL}/login`, data);
 
       if (res.data.message === "Login successful ✅") {
+
+        // store role
+        localStorage.setItem("role", res.data.role);
+
         await axios.post(`${BASE_URL}/send_otp`, {
           email: data.email
         });
 
         setShowOtp(true);
         setMessage("OTP sent 📧");
+
       } else {
         setMessage(res.data.message);
       }
-    } catch (err) {
+
+    } catch {
       setMessage("Server error ❌");
     } finally {
       setLoading(false);
     }
   };
 
-  // 🔐 VERIFY OTP
   const verifyOtp = async () => {
     if (!otp) {
       setMessage("Enter OTP");
@@ -73,12 +75,20 @@ function Login() {
       });
 
       if (res.data.message === "OTP verified") {
-        navigate("/user");
+
+        const role = localStorage.getItem("role");
+
+        if (role === "admin") navigate("/admin");
+        else if (role === "doctor") navigate("/doctor");
+        else if (role === "hospital") navigate("/hospital");
+        else navigate("/user");
+
       } else {
         setMessage("Invalid OTP ❌");
       }
+
     } catch {
-      setMessage("OTP verification failed ❌");
+      setMessage("OTP failed ❌");
     }
   };
 
@@ -86,13 +96,11 @@ function Login() {
     <div className="auth-wrapper">
       <div className="auth-box">
 
-        {/* LEFT PANEL */}
         <div className="left-panel">
           <h2>Welcome Back!</h2>
           <button onClick={() => navigate("/")}>Sign Up</button>
         </div>
 
-        {/* RIGHT PANEL */}
         <div className="right-panel">
           <h2>Sign In</h2>
 
@@ -110,16 +118,10 @@ function Login() {
             </button>
           ) : (
             <>
-              <input
-                placeholder="Enter OTP"
-                onChange={(e) => setOtp(e.target.value)}
-              />
+              <input placeholder="Enter OTP" onChange={(e) => setOtp(e.target.value)} />
               <button onClick={verifyOtp}>Login</button>
 
-              {/* 🔁 RESEND OTP */}
-              <p className="link" onClick={sendOtp}>
-                Resend OTP
-              </p>
+              <p className="link" onClick={sendOtp}>Resend OTP</p>
             </>
           )}
         </div>

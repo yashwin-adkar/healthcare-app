@@ -5,17 +5,16 @@ import os
 import random
 import smtplib
 from email.mime.text import MIMEText
-import psycopg2
+from dotenv import load_dotenv
+import bcrypt
+
+load_dotenv()
+
 app = Flask(__name__)
 CORS(app)
 
 # ---------------- DATABASE CONNECTION ----------------
-DATABASE_URL = os.environ.get("DATABASE_URL")
-
 def get_db_connection():
-    import psycopg2
-    import os
-
     return psycopg2.connect(
         os.environ.get("DATABASE_URL"),
         sslmode='require'
@@ -55,7 +54,7 @@ def send_otp():
 
         return jsonify({"message": "OTP sent successfully"})
     except Exception as e:
-        print(e)
+        print("OTP ERROR:", e)
         return jsonify({"message": "Failed to send OTP"})
 
 # ---------------- VERIFY OTP ----------------
@@ -81,16 +80,23 @@ def register():
         password = data['password']
         role = data['role']
 
+        # 🔐 HASH PASSWORD
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+
         conn = get_db_connection()
         cur = conn.cursor()
 
+        # CHECK EXISTING EMAIL
         cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         if cur.fetchone():
+            cur.close()
+            conn.close()
             return jsonify({"message": "Email already exists ❌"})
 
+        # INSERT USER
         cur.execute(
             "INSERT INTO users(name,email,password,role) VALUES(%s,%s,%s,%s)",
-            (name, email, password, role)
+            (name, email, hashed_password.decode('utf-8'), role)
         )
         conn.commit()
 
@@ -100,38 +106,49 @@ def register():
         return jsonify({"message": "User registered successfully ✅"})
 
     except Exception as e:
-        print("ERROR:", e)
+        print("REGISTER ERROR:", e)
         return jsonify({"message": "Server error", "error": str(e)})
 
 # ---------------- LOGIN ----------------
 @app.route('/login', methods=['POST'])
 def login():
-    data = request.json
+    try:
+        data = request.json
 
-    email = data['email']
-    password = data['password']
+        email = data['email']
+        password = data['password']
 
-    conn = get_db_connection()
-    cur = conn.cursor()
+        conn = get_db_connection()
+        cur = conn.cursor()
 
-    cur.execute(
-        "SELECT id, name, role FROM users WHERE email=%s AND password=%s",
-        (email, password)
-    )
-    user = cur.fetchone()
+        # GET USER BY EMAIL
+        cur.execute(
+            "SELECT id, name, role, password FROM users WHERE email=%s",
+            (email,)
+        )
+        user = cur.fetchone()
 
-    cur.close()
-    conn.close()
+        cur.close()
+        conn.close()
 
-    if user:
-        return jsonify({
-            "message": "Login successful ✅",
-            "user_id": user[0],
-            "name": user[1],
-            "role": user[2]
-        })
-    else:
+        if user:
+            stored_password = user[3]
+
+            # 🔐 CHECK PASSWORD
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                return jsonify({
+                    "message": "Login successful ✅",
+                    "user_id": user[0],
+                    "name": user[1],
+                    "role": user[2]
+                })
+
         return jsonify({"message": "Invalid credentials ❌"})
 
+    except Exception as e:
+        print("LOGIN ERROR:", e)
+        return jsonify({"message": "Server error", "error": str(e)})
+
+# ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run()

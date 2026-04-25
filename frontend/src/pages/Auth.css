@@ -102,3 +102,25 @@ button:hover {
 .success {
   color: green;
 }
+/* 🔥 ROLE DROPDOWN STYLE */
+select {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 2px solid #8fae1d;
+  background: #f7fbe9;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* HOVER EFFECT */
+select:hover {
+  border-color: #6f8d12;
+}
+
+/* FOCUS EFFECT */
+select:focus {
+  outline: none;
+  box-shadow: 0 0 5px #8fae1d;
+}
