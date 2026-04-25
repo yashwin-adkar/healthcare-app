@@ -1,0 +1,104 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background: #e5e8b6;
+}
+
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Main card */
+.auth-box {
+  display: flex;
+  width: 800px;
+  height: 450px;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* LEFT PANEL */
+.left-panel {
+  width: 50%;
+  background: linear-gradient(135deg, #b4c424, #8fae1d);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  text-align: center;
+}
+
+.left-panel h2 {
+  margin-bottom: 10px;
+}
+
+.left-panel button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: white;
+  color: #8fae1d;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+/* RIGHT PANEL */
+.right-panel {
+  width: 50%;
+  padding: 40px;
+  text-align: center;
+}
+
+.right-panel h2 {
+  margin-bottom: 20px;
+}
+
+input {
+  width: 90%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 95%;
+  padding: 10px;
+  background: #8fae1d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #6f8d12;
+}
+
+.link {
+  margin-top: 10px;
+  cursor: pointer;
+  color: #8fae1d;
+}
+
+.message {
+  color: red;
+  font-weight: bold;
+}
+.error {
+  color: red;
+  font-size: 12px;
+  text-align: left;
+  margin-left: 5%;
+}
+
+.success {
+  color: green;
+}
